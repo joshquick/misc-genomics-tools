@@ -38,7 +38,7 @@ def go(args, options):
 		prefix = ''
 
 	fh_alleles = open("%salleles.txt" % (prefix,), "w")
-	fh_all_alleles = open("%sall_alleles.txt" % (prefix,), "w")
+	#fh_all_alleles = open("%sall_alleles.txt" % (prefix,), "w")
 	fh_samples = open("%ssamples.txt" % (prefix,), "w")
 
 	alleles = defaultdict(str)
@@ -82,9 +82,6 @@ def go(args, options):
 		for sample in samples_to_use:
 			alleles[sample.sample] += sample.gt_bases.split("/")[0]
 
-	for sample, genotypes in alleles.iteritems():
-		print >>fh_all_alleles, ">%s\n%s" % (sample, genotypes)
-
 # unique allele number
 	if options.profile == 1:
 		unique_alleles = set(alleles.values())
@@ -118,8 +115,8 @@ def go(args, options):
 	for allele, allele_number in allele_lookup.iteritems():
 		print >>fh_alleles, ">%s\n%s" % (allele_number, allele)
 
-	for sample, value in sorted(nocalls.iteritems(), key=operator.itemgetter(1)):
-		print "%s => %s" % ( sample, value )
+#	for sample, value in sorted(nocalls.iteritems(), key=operator.itemgetter(1)):
+#		print "%s => %s" % ( sample, value )
 
 #	for loc, samplelist in sorted(nocalls_by_rec.iteritems(), key=operator.itemgetter(1)):
 #		print "%s: " % (loc,)
@@ -127,22 +124,22 @@ def go(args, options):
 #			print "   %s" % (sample)
 
 	if options.nocallsfile:
-		nocall_fh = open(options.nocallsfile, "w")
-		print >>nocall_fh, "CHROM\tPOS\tREF\tALT\tSample\tSDP"
+		fh_nocalls = open("%snocalls.txt" % (prefix,), "w")
+		print >>fh_nocalls, "CHROM\tPOS\tREF\tALT\tSample\tSDP"
 		for nocall in nocalls_list:
-			print >>nocall_fh, "\t".join([str(s) for s in nocall])
-		nocall_fh.close()
+			print >>fh_nocalls, "\t".join([str(s) for s in nocall])
+		fh_nocalls.close()
 
 def main():
 	usage = "usage: %prog [options] vcffile"
 	parser = OptionParser(usage)
 	parser.add_option("-m", "--metadata", dest="metadata",
 					  help="load metadata from METADATA")
-	parser.add_option("-s", "--samples", dest="samplefile",
+	parser.add_option("-s", "--samples", dest="samplefile", action="store_true",
 					  help="output sample info to SAMPLEFILE (default: <prefix>_samples.txt")
-	parser.add_option("-a", "--alleles", dest="allelesfile",
+	parser.add_option("-a", "--alleles", dest="allelesfile", action="store_true",
 					  help="output alleles file to ALLELESFILE (default: <prefix>_alleles.txt")
-        parser.add_option("-n", "--nocalls", dest="nocallsfile",
+        parser.add_option("-n", "--nocalls", dest="nocallsfile", action="store_true",
                                           help="output alleles file to NOCALLSFILE (default: <prefix>_nocalls.txt")
 	parser.add_option("-p", "--percentage_nocalls", dest="percent_nocalls", type="float", 
 					  help="do not include samples with greater than <percentnocall> no calls")
